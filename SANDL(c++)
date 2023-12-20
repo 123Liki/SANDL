@@ -1,0 +1,424 @@
+#include<bits/stdc++.h>
+using namespace std;
+int PC = 0, TEMP = 0, A = 0, B = 0, ALU = 0, IR = 0, MAR = 0, CF=0,SP=256;
+vector <pair<string,int>> RAM;
+map<int,int> addmap;
+
+void print_instructions(){
+    cout<<"Valid Instructions are"<<endl;
+    cout<<"AMVI"<<"---->"<<"Load A with data                          AMVI #DATA"<<endl;
+    cout<<"BMOV"<<"---->"<<"Move A to B                               BMOV -1"<<endl;
+    cout<<"INR"<<"---->"<<"Increment Accumulator                      INR -1"<<endl;
+    cout<<"ADI"<<"---->"<<"Add data to Accumulator                    ADI #DATA"<<endl;
+    cout<<"SBI"<<"---->"<<"Subtract data from Accumulator             SBI #DATA"<<endl;
+    cout<<"ADM"<<"---->"<<"Add data present in Memory Location        ADM #ADDRESS"<<endl;
+    cout<<"SBM"<<"---->"<<"Substract data present in Memory Location  SBM #ADDRESS"<<endl;
+    cout<<"AND"<<"---->"<<"Bitwise And operation                      AND -1"<<endl;
+    cout<<"XOR"<<"---->"<<"Bitwise XOR operation                      XOR -1"<<endl;
+    cout<<"CLR"<<"---->"<<"Set value of A to 0                        CLR -1"<<endl;
+    cout<<"RSH"<<"---->"<<"Rotate right                               RSH -1"<<endl;
+    cout<<"LSH"<<"---->"<<"Rotate Left                                LSH -1"<<endl;
+    cout<<"STA"<<"---->"<<"Store Accumulator in Memory Location       STA #ADDRESS"<<endl;
+    cout<<"LDA"<<"---->"<<"Load Accumulator with Memory Location      LDA #ADDRESS"<<endl;
+    cout<<"PUSH"<<"---->"<<"Add data to the stack                     PUSH #DATA"<<endl;
+    cout<<"POP"<<"---->"<<"Remove data from the stack                 POP -1"<<endl;
+    cout<<"If the operation operand is implicit then write '-1' in place of data/address."<<endl; 
+    cout<<endl;
+}
+
+void fet(){
+  cout<<"FETCH CYCLES :-"<<endl;
+  cout<<endl;
+    cout<<" T0 --> PC(E) , MAR(E,L)"<<endl;
+    MAR=PC;
+    cout<<" T1 --> PC(I) , RAM(E) , IR(L) , TMP(L)"<<endl;
+    PC=PC+1;
+cout<<endl;
+}
+void print()
+{
+    cout << endl;
+    cout << "PC=" << PC << " "
+         << "IR=" << IR << " "
+         << "TEMP=" << TEMP << " "
+         << "MAR=" << MAR << " "
+         << "A=" << A << " "
+         << "B=" << B << " "
+         << "CF="<<CF<< " "
+         <<"SP="<<SP<<endl;
+    cout << endl;
+}
+void print_address(){
+int count=0;
+for(auto val: addmap){
+    cout<<val.first<<" ---> "<<val.second<<"      ";
+    count++;
+    if(count==10){
+        cout<<endl;
+        count=0;
+    }
+}
+cout<<endl;
+}
+void print_line(){
+  cout<<endl;
+  cout<<"-----------------------------------------------------------------------------------------------------------------------------"<<endl;
+  cout<<endl;
+}
+int main(){
+
+/*#ifndef ONLINE_JUDGE
+    freopen("input.txt", "r", stdin);
+    freopen("output.txt", "w", stdout);
+#endif*/
+
+  for(int i=100;i<=255;i++){
+    addmap[i]=0;
+}
+//print_address();
+cout<<endl;
+print_instructions();
+cout<<"ENTER YOUR PROGRAM :"<<endl;
+
+do{
+    string s;
+    int c;
+    cin>>s;
+    cin>>c;
+    pair<string,int> p={s,c};
+    RAM.push_back(p);
+}while(RAM[RAM.size()-1].first!="HLT");
+
+int n=RAM.size();
+
+for(int i=0;i<n;i++){
+    if(RAM[i].first=="AMVI"){//LOAD A WITH DATA, "AMVI #DATA",OPCODE - 0000
+        int c=RAM[i].second;
+        fet();
+        IR=0;
+        TEMP=c;
+        cout<<"EXECUTION CYCLES :-"<<endl;
+        cout<<endl;
+        cout<<" T2 --> TMP(E) , A(L) ,R(reset)"<<endl;
+        cout<<endl;
+        A=TEMP;
+        
+        print();
+        print_line();
+    }
+    /*else if(RAM[i].first=="BMVI"){//LOAD B WITH DATA, "BMVI #DATA",OPCODE - 0001
+    int c=RAM[i].second;
+       fet();
+        IR=0;
+        TEMP=c;
+        cout<<" T2 --> TMP(E) , B(L)"<<endl;
+        B=TEMP;
+        
+        print();
+    }*/
+    /*else if(RAM[i].first=="AMOV"){//MOVE B TO A, "AMOV -1",OPCODE - 0010
+       // char c=RAM[i].second;
+       fet();
+       IR=2;
+        cout<<" T2 --> B(E) , A(L)"<<endl;
+       A=B;
+       
+       print();
+    }*/
+    else if(RAM[i].first=="BMOV"){ //MOVE A TO B, "BMOV -1",OPCODE - 0001
+       // char c=RAM[i].second;
+       fet();
+       IR=1;
+       cout<<"EXECUTION CYCLES :-"<<endl;
+       cout<<endl;
+         cout<<" T2 --> A(E) , B(L), R(reset)"<<endl;
+         cout<<endl;
+       B=A;
+       
+        print();
+        print_line();
+    }
+     else if(RAM[i].first=="INR"){ //INCREMENT ACCUMULATOR, "INR -1",OPCODE - 0010
+      //  char c=RAM[i].second;
+      fet();
+      IR=2;
+      
+      if(A==255){
+        CF=1;
+        A=0;
+      }
+      else{
+       A++;
+      }
+      cout<<"EXECUTION CYCLES :-"<<endl;
+      cout<<endl;
+      cout<<" T2-->A(E) , ALU(L) "<<endl;
+       cout<<" T3-->ALU(E) , A(L), R(reset) "<<endl;
+       cout<<endl;
+       
+        print();
+        print_line();
+    }
+     /*else if(RAM[i].first=="DCR"){ //DECREMENT ACCUMULATOR, "DCR I",OPCODE - 0101
+       // char c=RAM[i].second;
+       fet();
+       IR=5;
+       if(A==0)
+       cout<<"DECREMENT NOT POSSIBLE"<<endl;
+       else
+       A--;
+       
+         cout<<" T2-->A(E) , ALU(L) "<<endl;
+       cout<<" T3-->ALU(E) , A(L) "<<endl;
+        print();
+    }*/
+    else if(RAM[i].first=="ADI"){ //ADD DATA TO ACCUMULATOR, "ADI #DATA",OPCODE - 0011
+        int c=RAM[i].second;
+        fet();
+        IR=3;
+        TEMP=c;
+        A += c;
+        if(A>4095){
+            CF=1;
+            A=A-4096;
+        }
+       
+     cout<<"EXECUTION CYCLES :-"<<endl;
+     cout<<endl;
+      cout<<" T2 --> TEMP(E) ,A(E) , ALU(L)"<<endl;
+      cout<<" T3 -->ALU(E) , A(L), R(reset)"<<endl;
+      cout<<endl;
+
+        
+        print();
+        print_line();
+    }
+    else if(RAM[i].first=="ADM"){ //ADD data present in memory location TO A AND STORE IN A,"ADM #address",OPCODE - 0100
+        int c=RAM[i].second;
+      fet();
+      IR=4;
+      TEMP=c;
+      cout<<"EXECUTION CYCLES :-"<<endl;
+      cout<<endl;
+      cout<<" T2 -->TEMP(E) , MAR(E,L)"<<endl;
+      cout<<" T3 -->RAM(E) , TEMP(L)"<<endl;
+      cout<<" T4 --> TEMP(E) ,A(E) , ALU(L)"<<endl;
+      cout<<" T5 -->ALU(E) , A(L), R(reset)"<<endl;
+      cout<<endl;
+
+      MAR=TEMP;
+      TEMP=addmap[MAR];
+      A+=addmap[MAR];
+        
+        print();
+        print_line();
+    }
+    else if(RAM[i].first=="SBI"){ //SUBTRACT DATA FROM ACCUMULATOR, "SBI #DATA",OPCODE - 0101
+        int c=RAM[i].second;
+        fet();
+        IR=5;
+        TEMP=c;
+        A-=c;
+        cout<<"EXECUTION CYCLES :-"<<endl;
+        cout<<endl;
+        cout<<" T2 --> TEMP(E) ,A(E) , ALU(L)"<<endl;
+      cout<<" T3 -->ALU(E) , A(L), R(reset)"<<endl;
+      cout<<endl;
+        print();
+        print_line();
+    }
+    else if(RAM[i].first=="SBM"){ //SUBTRACT data present in memory location from A AND STORE IN A, "SBM #ADDRESS",OPCODE - 0110
+     int c=RAM[i].second;
+      fet();
+      IR=6;
+      TEMP=c;
+      cout<<"EXECUTION CYCLES :-"<<endl;
+      cout<<endl;
+        cout<<" T2 -->TEMP(E) , MAR(E,L)"<<endl;
+      cout<<" T3 -->RAM(E) , TEMP(L)"<<endl;
+      cout<<" T4 --> TEMP(E) ,A(E) , ALU(L)"<<endl;
+      cout<<" T5 -->ALU(E) , A(L), R(reset)"<<endl;
+      cout<<endl;
+      MAR=TEMP;
+      TEMP=addmap[MAR];
+        A-=addmap[MAR];
+        
+        print();
+        print_line();
+    }
+    else if(RAM[i].first=="AND"){ //AND A AND B AND STORE IN A,"AND I",OPCODE - 0111
+      //  char c=RAM[i].second;
+      fet();
+       IR=7;
+        A =A&B;
+        cout<<"EXECUTION CYCLES :-"<<endl;
+        cout<<endl;
+      cout<<" T2 --> B(E) ,A(E) , ALU(L)"<<endl;
+      cout<<" T3 -->ALU(E) , A(L), R(reset)"<<endl;
+      cout<<endl;
+        print();
+        print_line();
+    }
+    /*else if(RAM[i].first=="ORR"){ //OR A AND B AND STORE IN A, "ORR I",,OPCODE - 1011
+      //  char c=RAM[i].second;
+      fet();
+      IR=11;
+        A =A |B;
+         cout<<" T2 --> B(E) ,A(E) , ALU(L)"<<endl;
+      cout<<" T3 -->ALU(E) , A(L)"<<endl;
+        print();
+    }*/
+    else if(RAM[i].first=="XOR"){ //XOR A AND B AND STORE IN A, "XOR I",,OPCODE - 1000
+      //  char c=RAM[i].second;
+      fet();
+        A =A^B;
+        IR=8;
+        if(A>=16){
+            CF=1;
+            A=A-16;
+        }
+        cout<<"EXECUTION CYCLES :-"<<endl;
+        cout<<endl;
+         cout<<" T2 --> B(E) ,A(E) , ALU(L)"<<endl;
+      cout<<" T3 -->ALU(E) , A(L), R(reset)"<<endl;
+      cout<<endl;
+        print();
+        print_line();
+    }
+    else if(RAM[i].first=="CLR"){ //SET VALUE OF A TO ZERO, "CLR I",OPCODE - 1001
+      //  char c=RAM[i].second;
+      fet();
+      IR=9;
+        A=0;
+        cout<<"EXECUTION CYCLES :-"<<endl;
+        cout<<endl;
+        cout<<" T2-->A(E) , ALU(L) "<<endl;
+       cout<<" T3-->ALU(E) , A(L), R(reset) "<<endl;
+       cout<<endl;
+        print();
+        print_line();
+    }
+    else if(RAM[i].first=="RSH"){ //ROTATE RIGHT, "RSH I",OPCODE - 1010
+      //  char c=RAM[i].second;
+      fet();
+      CF=(A&1);
+        A=A/2;
+        IR=10;
+        cout<<"EXECUTION CYCLES :-"<<endl;
+        cout<<endl;
+         cout<<" T2-->A(E) , BS(L) "<<endl;
+       cout<<" T3-->BS(E) , A(L), R(reset) "<<endl;
+       cout<<endl;
+       print();
+       print_line();
+    }
+    else if(RAM[i].first=="LSH"){ //ROTATE LEFT, "LSH I",OPCODE - 1011
+      //  char c=RAM[i].second;
+      fet();
+      IR=11;
+      A=A*2;
+      cout<<"EXECUTION CYCLES :-"<<endl;
+      cout<<endl;
+        cout<<" T2-->A(E) , BS(L) "<<endl;
+       cout<<" T3-->BS(E) , A(L), R(reset) "<<endl;
+       cout<<endl;
+        print();
+        print_line();
+    }
+    else if(RAM[i].first=="STA"){// opcode =1100;
+        int c=(RAM[i].second);
+        fet();
+        IR=12;
+        cout<<"EXECUTION CYCLES :-"<<endl;
+        cout<<endl;
+        cout<<" T2 -->TEMP(E) , MAR(E,L)"<<endl;
+            cout<<" T3 -->RAM(L) , A(E), R(reset)"<<endl;
+            cout<<endl;
+            MAR=TEMP;
+        addmap[MAR]=A;
+         print_address();
+        print();
+       
+         print_line();
+    }
+    else if(RAM[i].first=="LDA"){//opcode 1101;
+        int c=(RAM[i].second);
+        fet();
+        IR=13;
+        TEMP=c;
+        cout<<"EXECUTION CYCLES :-"<<endl;
+        cout<<endl;
+       cout<<" T2 -->TEMP(E) , MAR(E,L)"<<endl;
+            cout<<" T3 -->RAM(E) , A(L), R(reset)"<<endl;
+            cout<<endl;
+            MAR=TEMP;
+        A=addmap[MAR];
+        print_address();
+        print();
+         print_line();
+        
+    }
+    else if(RAM[i].first=="PUSH"){//opcode 1110
+        int c=RAM[i].second;
+        fet();
+        IR=14;
+        TEMP=c;
+        cout<<"EXECUTION CYCLES :-"<<endl;
+        cout<<endl;
+        cout<<" T2 -->SP(D)"<<endl;
+        cout<<" T3 -->SP(E) , MAR(E,L)"<<endl;
+         cout<<" T4 -->TEMP(E) , RAM(L), R(reset)"<<endl;
+         cout<<endl;
+         TEMP=c;
+         SP--;
+         MAR=SP;
+         addmap[MAR]=TEMP;
+         
+         print_address();
+         cout<<endl;
+         print(); 
+         print_line();
+        
+    }
+       else if(RAM[i].first=="POP"){//opcode 1111;
+        int c=RAM[i].second;
+       fet();
+       IR=15;
+       cout<<"EXECUTION CYCLES :-"<<endl;
+       cout<<endl;
+        cout<<" T2 -->SP(E) , MAR(E,L)"<<endl;
+         cout<<" T4 -->MAR(E) , B(L)"<<endl;
+        cout<<" T5 -->SP(I), R(reset) "<<endl;
+        cout<<endl;
+         MAR=SP;
+         B=addmap[MAR];
+         addmap[MAR]=0;
+         SP++;
+         
+         print_address();
+         print();
+         print_line();
+        
+    }
+    else if(RAM[i].first=="HLT"){
+        cout<<"<----------------------------------------------------------------THANK YOU----------------------------------------------------------->"<<endl;
+    }
+    else{
+        cout<<"Instruction Entered is Incorrect Please Recheck Instruction Entered."<<endl;
+        cout<<endl;
+    }
+
+
+}
+
+}
+/*
+AMVI 52
+BMOV -1
+CLR -1
+AMVI 24
+//AND -1
+//LSH -1
+HLT -1
+
+*/
